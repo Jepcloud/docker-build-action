@@ -85,7 +85,7 @@ jobs:
           post-build-script: |
             echo "=== Post-build Script ==="
             echo "Build completed at $(date)"
-            docker images | grep test-app-scripts
+            docker images
 
   test-cache:
     name: Test Caching
