@@ -14,7 +14,7 @@ A custom GitHub Action for building Docker images with caching and Slack notific
 ## Usage
 
 ```yaml
-- uses: your-username/docker-build-action@v1
+- uses: jepcloud/docker-build-action@v1
   with:
     image-name: myapp
     tags: latest,${{ github.sha }}
@@ -38,9 +38,6 @@ A custom GitHub Action for building Docker images with caching and Slack notific
 | `registry-username` | Registry username                       | No       | -              |
 | `registry-password` | Registry password                       | No       | -              |
 | `push`              | Push to registry                        | No       | `false`        |
-| `slack-webhook-url` | Slack webhook URL                       | No       | -              |
-| `slack-message`     | Custom Slack message                    | No       | -              |
-| `notify-on`         | When to notify (success/failure/always) | No       | `failure`      |
 | `pre-build-script`  | Script before build                     | No       | -              |
 | `post-build-script` | Script after build                      | No       | -              |
 
@@ -56,7 +53,7 @@ A custom GitHub Action for building Docker images with caching and Slack notific
 ### Basic Build
 
 ```yaml
-- uses: your-username/docker-build-action@v1
+- uses: jepcloud/docker-build-action@v1
   with:
     image-name: myapp
 ```
@@ -64,7 +61,7 @@ A custom GitHub Action for building Docker images with caching and Slack notific
 ### Build and Push to GHCR
 
 ```yaml
-- uses: your-username/docker-build-action@v1
+- uses: jepcloud/docker-build-action@v1
   with:
     image-name: myapp
     tags: latest,${{ github.sha }}
@@ -74,23 +71,10 @@ A custom GitHub Action for building Docker images with caching and Slack notific
     push: "true"
 ```
 
-### With Slack Notifications
-
-```yaml
-- uses: your-username/docker-build-action@v1
-  with:
-    image-name: myapp
-    push: "true"
-    registry-username: ${{ secrets.DOCKER_USERNAME }}
-    registry-password: ${{ secrets.DOCKER_PASSWORD }}
-    slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-    notify-on: always
-```
-
 ### With Custom Scripts
 
 ```yaml
-- uses: your-username/docker-build-action@v1
+- uses: jepcloud/docker-build-action@v1
   with:
     image-name: myapp
     pre-build-script: |
@@ -104,7 +88,7 @@ A custom GitHub Action for building Docker images with caching and Slack notific
 ### With Build Arguments
 
 ```yaml
-- uses: your-username/docker-build-action@v1
+- uses: jepcloud/docker-build-action@v1
   with:
     image-name: myapp
     build-args: |

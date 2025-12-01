@@ -21,7 +21,7 @@ inputs:
     required: false
     default: ''
   registry:
-    description: 'Docker registry (e.g., ghcr.io, docker.io)'
+    description: 'Docker registry (e.g., ghcr.io, docker.io, ECR)'
     required: false
     default: 'docker.io'
   registry-username:
@@ -34,16 +34,6 @@ inputs:
     description: 'Push image to registry'
     required: false
     default: 'false'
-  slack-webhook-url:
-    description: 'Slack webhook URL for notifications'
-    required: false
-  slack-message:
-    description: 'Custom Slack message'
-    required: false
-  notify-on:
-    description: 'When to notify (success, failure, always)'
-    required: false
-    default: 'failure'
   pre-build-script:
     description: 'Script to run before build'
     required: false
