@@ -105,10 +105,15 @@ runs:
           IFS=',' read -ra ARG_ARRAY <<< "${{ inputs.build-args }}"
           for arg in "${ARG_ARRAY[@]}"; do
             arg=$(echo "$arg" | xargs)
-            BUILD_ARGS="$BUILD_ARGS --build-arg $arg"
+            if [ -n "$BUILD_ARGS" ]; then
+              BUILD_ARGS="$BUILD_ARGS"$'\n'
+            fi
+            BUILD_ARGS="$BUILD_ARGS$arg"
           done
         fi
-        echo "build-args=$BUILD_ARGS" >> $GITHUB_OUTPUT
+        echo "build-args<<EOF" >> $GITHUB_OUTPUT
+        echo "$BUILD_ARGS" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Build and push
       id: build
@@ -120,7 +125,7 @@ runs:
         tags: ${{ steps.prep.outputs.tags }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        build-args: ${{ inputs.build-args }}
+        build-args: ${{ steps.prep.outputs.build-args }}
 
     - name: Set outputs
       id: set-outputs
