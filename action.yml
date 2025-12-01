@@ -80,7 +80,7 @@ runs:
         username: ${{ inputs.registry-username }}
         password: ${{ inputs.registry-password }}
 
-    - name: Prepare tags and build args
+    - name: Prepare tags
       id: prep
       shell: bash
       run: |
@@ -91,7 +91,6 @@ runs:
           if [ -n "$TAGS" ]; then
             TAGS="$TAGS,"
           fi
-          # Only add registry prefix if pushing or credentials provided
           if [ "${{ inputs.push }}" == "true" ] || [ -n "${{ inputs.registry-username }}" ]; then
             TAGS="$TAGS${{ inputs.registry }}/${{ inputs.image-name }}:$tag"
           else
@@ -99,21 +98,6 @@ runs:
           fi
         done
         echo "tags=$TAGS" >> $GITHUB_OUTPUT
-        
-        BUILD_ARGS=""
-        if [ -n "${{ inputs.build-args }}" ]; then
-          IFS=',' read -ra ARG_ARRAY <<< "${{ inputs.build-args }}"
-          for arg in "${ARG_ARRAY[@]}"; do
-            arg=$(echo "$arg" | xargs)
-            if [ -n "$BUILD_ARGS" ]; then
-              BUILD_ARGS="$BUILD_ARGS"$'\n'
-            fi
-            BUILD_ARGS="$BUILD_ARGS$arg"
-          done
-        fi
-        echo "build-args<<EOF" >> $GITHUB_OUTPUT
-        echo "$BUILD_ARGS" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Build and push
       id: build
@@ -125,7 +109,6 @@ runs:
         tags: ${{ steps.prep.outputs.tags }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        build-args: ${{ steps.prep.outputs.build-args }}
 
     - name: Set outputs
       id: set-outputs
