@@ -13,7 +13,6 @@ jobs:
       - name: Test action
         uses: ./
         with:
-          registry: ghcr.io
-          image-name: ${{ github.repository }}/test-app
+          image-name: yourusername/test-app
           tags: test
           push: "false"
