@@ -91,7 +91,9 @@ runs:
           if [ -n "$TAGS" ]; then
             TAGS="$TAGS,"
           fi
-          TAGS="$TAGS${{ inputs.registry }}/${{ inputs.image-name }}:$tag"
+          REG="${{ inputs.registry }}"
+          IMG="${{ inputs.image-name }}"
+          TAGS="$TAGS${REG}/${IMG}:$tag"
         done
         echo "tags=$TAGS" >> $GITHUB_OUTPUT
         

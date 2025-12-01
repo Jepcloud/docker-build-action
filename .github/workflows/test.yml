@@ -13,7 +13,8 @@ jobs:
       - name: Test action
         uses: ./
         with:
-          registry: docker.io/library
-          image-name: test-app
+          registry: "docker.io"
+          image-name: "library/test-app"
           tags: test
           push: "false"
+
