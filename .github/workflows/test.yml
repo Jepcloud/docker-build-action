@@ -5,16 +5,129 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-basic:
+    name: Test Basic Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Test action
+      - name: Test basic build
         uses: ./
         with:
-          registry: "docker.io"
-          image-name: "library/test-app"
+          dockerfile: test/Dockerfile
+          context: .
+          image-name: test-app
           tags: test
           push: "false"
 
+  test-multi-tag:
+    name: Test Multi-tag Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test multi-tag build
+        uses: ./
+        with:
+          dockerfile: test/Dockerfile
+          context: .
+          image-name: test-app
+          tags: test,latest,v1.0.0
+          push: "false"
+
+  test-build-args:
+    name: Test Build Arguments
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Dockerfile with args
+        run: |
+          cat > test/Dockerfile.args << 'EOF'
+          FROM alpine:latest
+          ARG VERSION=unknown
+          ARG BUILD_DATE=unknown
+          LABEL version=$VERSION
+          LABEL build_date=$BUILD_DATE
+          RUN echo "Version: $VERSION, Build Date: $BUILD_DATE"
+          EOF
+
+      - name: Test with build args
+        uses: ./
+        with:
+          dockerfile: test/Dockerfile.args
+          context: .
+          image-name: test-app-args
+          tags: test
+          build-args: VERSION=1.0.0,BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          push: "false"
+
+  test-scripts:
+    name: Test Custom Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test with custom scripts
+        uses: ./
+        with:
+          dockerfile: test/Dockerfile
+          context: .
+          image-name: test-app-scripts
+          tags: test
+          push: "false"
+          pre-build-script: |
+            echo "=== Pre-build Script ==="
+            echo "Repository: ${{ github.repository }}"
+            echo "Branch: ${{ github.ref_name }}"
+            echo "SHA: ${{ github.sha }}"
+            ls -la test/
+          post-build-script: |
+            echo "=== Post-build Script ==="
+            echo "Build completed at $(date)"
+            docker images | grep test-app-scripts
+
+  test-cache:
+    name: Test Caching
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: First build (populate cache)
+        uses: ./
+        with:
+          dockerfile: test/Dockerfile
+          context: .
+          image-name: test-app-cache
+          tags: cache-test-1
+          push: "false"
+
+      - name: Second build (use cache)
+        uses: ./
+        with:
+          dockerfile: test/Dockerfile
+          context: .
+          image-name: test-app-cache
+          tags: cache-test-2
+          push: "false"
+
+  test-outputs:
+    name: Test Outputs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and capture outputs
+        id: build
+        uses: ./
+        with:
+          dockerfile: test/Dockerfile
+          context: .
+          image-name: test-app-outputs
+          tags: output-test
+          push: "false"
+
+      - name: Display outputs
+        run: |
+          echo "Image Tag: ${{ steps.build.outputs.image-tag }}"
+          echo "Digest: ${{ steps.build.outputs.digest }}"
