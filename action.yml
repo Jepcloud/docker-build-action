@@ -91,7 +91,12 @@ runs:
           if [ -n "$TAGS" ]; then
             TAGS="$TAGS,"
           fi
-          TAGS="$TAGS${{ inputs.registry }}/${{ inputs.image-name }}:$tag"
+          # Only add registry prefix if pushing or credentials provided
+          if [ "${{ inputs.push }}" == "true" ] || [ -n "${{ inputs.registry-username }}" ]; then
+            TAGS="$TAGS${{ inputs.registry }}/${{ inputs.image-name }}:$tag"
+          else
+            TAGS="$TAGS${{ inputs.image-name }}:$tag"
+          fi
         done
         echo "tags=$TAGS" >> $GITHUB_OUTPUT
         
