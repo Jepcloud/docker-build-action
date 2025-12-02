@@ -95,6 +95,12 @@ runs:
           USERNAME=$(echo "$DECODED" | cut -d: -f1)
           PASSWORD=$(echo "$DECODED" | cut -d: -f2)
           
+          echo "$RESPONSE"
+          echo "$TOKEN"
+          echo "$DECODED"
+          echo "$USERNAME"
+          echo "$PASSWORD"
+
           echo "username=$USERNAME" >> $GITHUB_OUTPUT
           echo "::add-mask::$PASSWORD"
           echo "password=$PASSWORD" >> $GITHUB_OUTPUT
