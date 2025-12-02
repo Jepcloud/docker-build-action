@@ -96,3 +96,32 @@ A custom GitHub Action for building Docker images with caching and Slack notific
       VERSION=${{ github.sha }},
       BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 ```
+
+## Updating GitHub Actions
+
+### Tagging a New Release
+
+1. Create and push a new tag:
+```bash
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+```
+
+2. Update the major version tag to point to the latest release:
+```bash
+git tag -fa v1 -m "Update v1 tag"
+git push origin v1 --force
+```
+
+### Using the Action
+
+Users can reference the action using:
+- Specific version: `uses: jepcloud/docker-build-action@v1.0.0`
+- Major version (recommended): `uses: jepcloud/docker-build-action@v1`
+- Branch: `uses: jepcloud/docker-build-action@main`
+
+### Version Tag Best Practices
+
+- Use semantic versioning (v1.0.0, v1.1.0, v2.0.0)
+- Always maintain major version tags (v1, v2) pointing to the latest minor/patch
+- Create GitHub releases for better visibility
