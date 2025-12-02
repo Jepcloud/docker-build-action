@@ -71,52 +71,25 @@ runs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Configure registry credentials
-      id: registry-creds
-      shell: bash
-      run: |
-        if [ -n "${{ inputs.aws-access-key-id }}" ]; then
-          echo "Configuring ECR credentials..."
-          REGION="${{ inputs.aws-region }}"
-          
-          # Get ECR authorization token
-          RESPONSE=$(curl -s -X POST "https://api.ecr.${REGION}.amazonaws.com/" \
-            -H "Content-Type: application/x-amz-json-1.1" \
-            -H "X-Amz-Target: AmazonEC2ContainerRegistry_V20150921.GetAuthorizationToken" \
-            -H "X-Amz-Date: $(date -u +%Y%m%dT%H%M%SZ)" \
-            --aws-sigv4 "aws:amz:${REGION}:ecr" \
-            --user "${{ inputs.aws-access-key-id }}:${{ inputs.aws-secret-access-key }}" \
-            -d '{}')
-          
-          # Extract and decode token
-          TOKEN=$(echo "$RESPONSE" | grep -o '"authorizationToken":"[^"]*"' | cut -d'"' -f4)
-          DECODED=$(echo "$TOKEN" | base64 -d)
-          
-          USERNAME=$(echo "$DECODED" | cut -d: -f1)
-          PASSWORD=$(echo "$DECODED" | cut -d: -f2)
-          
-          echo "$RESPONSE"
-          echo "$TOKEN"
-          echo "$DECODED"
-          echo "$USERNAME"
-          echo "$PASSWORD"
+    - name: Configure AWS credentials
+      if: inputs.aws-access-key-id != ''
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: ${{ inputs.aws-region }}
 
-          echo "username=$USERNAME" >> $GITHUB_OUTPUT
-          echo "::add-mask::$PASSWORD"
-          echo "password=$PASSWORD" >> $GITHUB_OUTPUT
-        else
-          echo "Using provided registry credentials..."
-          echo "username=${{ inputs.registry-username }}" >> $GITHUB_OUTPUT
-          echo "password=${{ inputs.registry-password }}" >> $GITHUB_OUTPUT
-        fi
+    - name: Login to Amazon ECR
+      if: inputs.aws-access-key-id != ''
+      uses: aws-actions/amazon-ecr-login@v2
 
     - name: Login to Registry
-      if: steps.registry-creds.outputs.username != '' && steps.registry-creds.outputs.password != ''
+      if: inputs.registry-username != '' && inputs.registry-password != ''
       uses: docker/login-action@v3
       with:
         registry: ${{ inputs.registry }}
-        username: ${{ steps.registry-creds.outputs.username }}
-        password: ${{ steps.registry-creds.outputs.password }}
+        username: ${{ inputs.registry-username }}
+        password: ${{ inputs.registry-password }}
 
     - name: Prepare tags and build args
       id: prep
